@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -47,6 +47,8 @@ export default function EditProfilePage() {
   const [skills, setSkills] = useState<SkillData[]>([]);
   const [newSkill, setNewSkill] = useState({ name: "", category: "Programming", level: 3 });
   const [showSkillForm, setShowSkillForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -136,6 +138,26 @@ export default function EditProfilePage() {
       }
     } catch {
       toast.error("Failed to remove skill");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        toast.success("Your account has been deleted.");
+        await signOut({ callbackUrl: "/" });
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to delete account");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -459,6 +481,47 @@ export default function EditProfilePage() {
             ))}
           </div>
         )}
+        {/* Danger Zone */}
+        <div className="rounded-2xl bg-[var(--bg-secondary)] border border-[var(--error)]/20 p-6 space-y-4 mt-6">
+          <h2 className="text-sm font-semibold text-[var(--error)] uppercase tracking-wider flex items-center gap-2">
+            Danger Zone
+          </h2>
+          <div className="p-4 rounded-xl bg-[var(--error)]/5 border border-[var(--error)]/10 text-sm text-[var(--text-secondary)]">
+            Deleting your account is permanent. This will immediately erase your profile, projects, comments, and all other associated data. This action cannot be undone.
+          </div>
+          <div className="flex items-center justify-between pt-2">
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-4 py-2.5 bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/20 rounded-xl text-sm font-semibold hover:bg-[var(--error)] hover:text-white hover:border-[var(--error)] transition-all cursor-pointer"
+              >
+                Delete Account
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="text-xs text-[var(--text-secondary)] font-medium mr-auto sm:mr-0">Are you sure?</span>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleteLoading}
+                  className="btn-ghost text-xs px-3 py-2 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 bg-[var(--error)] text-white text-xs font-semibold rounded-lg hover:bg-[var(--error)]/90 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                >
+                  {deleteLoading ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Yes, Delete My Account"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

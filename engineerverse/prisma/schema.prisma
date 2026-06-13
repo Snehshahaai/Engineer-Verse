@@ -51,6 +51,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   password      String?
+  phone         String?   @unique
+  phoneVerified DateTime?
   image         String?
   bio           String?   @db.Text
   college       String?
@@ -143,4 +145,15 @@ model Like {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([userId, projectId])
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  target    String   // email or phone
+  code      String   // 6-digit OTP code
+  type      String   // "EMAIL" or "SMS"
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([target, code, type])
 }

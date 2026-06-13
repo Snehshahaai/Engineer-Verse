@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
 
-    // Check if user already exists
+    // Check if user already exists by email
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
@@ -16,6 +16,18 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
+        { status: 409 }
+      );
+    }
+
+    // Check if user already exists by phone
+    const existingPhone = await prisma.user.findFirst({
+      where: { phone: validatedData.phone },
+    });
+
+    if (existingPhone) {
+      return NextResponse.json(
+        { error: "An account with this phone number already exists" },
         { status: 409 }
       );
     }
@@ -28,6 +40,7 @@ export async function POST(request: Request) {
       data: {
         name: validatedData.name,
         email: validatedData.email,
+        phone: validatedData.phone,
         password: hashedPassword,
         college: validatedData.college || null,
         branch: validatedData.branch || null,

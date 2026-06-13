@@ -37,10 +37,6 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [search, sort, page]);
-
   async function fetchProjects() {
     setLoading(true);
     try {
@@ -63,6 +59,12 @@ export default function ProjectsPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchProjects();
+    });
+  }, [search, sort, page]);
 
   async function toggleLike(projectId: string) {
     try {

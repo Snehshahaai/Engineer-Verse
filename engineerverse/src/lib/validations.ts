@@ -9,6 +9,10 @@ export const registerSchema = z
       .min(6, "Password must be at least 6 characters")
       .max(100),
     confirmPassword: z.string(),
+    phone: z
+      .string()
+      .min(10, "Phone number must be at least 10 digits")
+      .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format (use e.g. +919876543210)"),
     college: z.string().optional(),
     branch: z.string().optional(),
     year: z.string().optional(),
@@ -29,6 +33,12 @@ export const profileSchema = z.object({
   college: z.string().max(200).optional(),
   branch: z.string().max(100).optional(),
   year: z.string().optional(),
+  phone: z
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .regex(/^\+?[1-9]\d{1,14}$/, "Invalid format")
+    .optional()
+    .or(z.literal("")),
   github: z.string().url().optional().or(z.literal("")),
   linkedin: z.string().url().optional().or(z.literal("")),
   portfolioUrl: z.string().url().optional().or(z.literal("")),

@@ -15,6 +15,9 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        emailVerified: true,
+        phone: true,
+        phoneVerified: true,
         image: true,
         bio: true,
         college: true,
@@ -63,7 +66,14 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { name, bio, college, branch, year, github, linkedin, portfolioUrl } = body;
+    const { name, bio, college, branch, year, phone, github, linkedin, portfolioUrl } = body;
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true },
+    });
+
+    const isPhoneChanged = phone !== undefined && phone !== currentUser?.phone;
 
     const user = await prisma.user.update({
       where: { id: session.user.id },
@@ -73,6 +83,8 @@ export async function PUT(request: Request) {
         college: college || null,
         branch: branch || null,
         year: year || null,
+        phone: phone !== undefined ? (phone || null) : undefined,
+        phoneVerified: isPhoneChanged ? null : undefined,
         github: github || null,
         linkedin: linkedin || null,
         portfolioUrl: portfolioUrl || null,
@@ -82,6 +94,27 @@ export async function PUT(request: Request) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("Profile update error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await prisma.user.delete({
+      where: { id: session.user.id },
+    });
+
+    return NextResponse.json({ success: true, message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Account delete error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

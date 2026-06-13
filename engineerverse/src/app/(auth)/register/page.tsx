@@ -14,6 +14,7 @@ import {
   Zap,
   BookOpen,
   Calendar,
+  Phone,
 } from "lucide-react";
 import { GitHubIcon } from "@/components/ui/Icons";
 import toast from "react-hot-toast";
@@ -24,6 +25,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     college: "",
@@ -212,6 +214,24 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                    <input
+                      id="register-phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => updateField("phone", e.target.value)}
+                      placeholder="+919876543210"
+                      required
+                      className="input-field pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
                     Password
                   </label>
                   <div className="relative">
@@ -259,7 +279,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!formData.name || !formData.email || !formData.password) {
+                    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
                       toast.error("Please fill in all required fields");
                       return;
                     }

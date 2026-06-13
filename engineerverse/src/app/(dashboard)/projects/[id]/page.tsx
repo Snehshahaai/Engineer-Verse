@@ -63,10 +63,6 @@ export default function ProjectDetailPage() {
   const [commentText, setCommentText] = useState("");
   const [commenting, setCommenting] = useState(false);
 
-  useEffect(() => {
-    fetchProject();
-  }, [id]);
-
   async function fetchProject() {
     try {
       const res = await fetch(`/api/projects/${id}`);
@@ -83,6 +79,12 @@ export default function ProjectDetailPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchProject();
+    });
+  }, [id]);
 
   async function toggleLike() {
     if (!project) return;
