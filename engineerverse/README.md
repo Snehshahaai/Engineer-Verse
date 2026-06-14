@@ -140,7 +140,7 @@ This project is licensed under the MIT License.
 
 **Sneh Shah**
 
-- GitHub: [@snehshah](https://github.com/snehshah)
+- GitHub: [@snehshah](https://github.com/Snehshahaai)
 
 ---
 
